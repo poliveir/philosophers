@@ -17,6 +17,7 @@ typedef struct s_table
 	int				time_to_sleep;
 	int				times_to_eat;
 	int				*forks;
+	pthread_mutex_t	*fork_locks;
 	int				death_is_present;
 	int				all_saciated;
 	pthread_mutex_t	mutex;

@@ -41,10 +41,14 @@ static pthread_t	*set_the_table(t_table *table, int argc, char **argv)
 	table->death_is_present = 0;
 	table->all_saciated = 0;
 	table->forks = malloc(sizeof(int) * table->n_phil);
+	table->fork_locks = malloc(sizeof(pthread_mutex_t) * table->n_phil);
 	pthread_mutex_init(&table->mutex, NULL);
 	i = 0;
 	while (i < table->n_phil)
+	{
+		pthread_mutex_init(&table->fork_locks[i], NULL);
 		table->forks[i++] = 1;
+	}
 	if (argc == 6)
 		table->times_to_eat = ft_atoi(argv[5]);
 	return (malloc(sizeof(pthread_t) * table->n_phil));

@@ -24,23 +24,28 @@ void	pick_up_fork(t_phil *ph)
 	{
 		if ((ph->pos + 1) % 2 > 0)
 		{
-			pthread_mutex_lock(&ph->table->mutex);
+			pthread_mutex_lock(&ph->table->fork_locks[ph->f_right]);
 			if (ph->table->forks[ph->f_right])
 				pick_up_fork2(ph, 'r');
+			pthread_mutex_unlock(&ph->table->fork_locks[ph->f_right]);
+			pthread_mutex_lock(&ph->table->fork_locks[ph->f_left]);
 			if (ph->table->forks[ph->f_left])
 				pick_up_fork2(ph, 'l');
-			pthread_mutex_unlock(&ph->table->mutex);
+			pthread_mutex_unlock(&ph->table->fork_locks[ph->f_left]);
 		}
 		else
 		{
 			usleep(100);
-			pthread_mutex_lock(&ph->table->mutex);
+			pthread_mutex_lock(&ph->table->fork_locks[ph->f_left]);
 			if (ph->table->forks[ph->f_left])
 				pick_up_fork2(ph, 'l');
+			pthread_mutex_unlock(&ph->table->fork_locks[ph->f_left]);
+			pthread_mutex_lock(&ph->table->fork_locks[ph->f_right]);
 			if (ph->table->forks[ph->f_right])
 				pick_up_fork2(ph, 'r');
-			pthread_mutex_unlock(&ph->table->mutex);
+			pthread_mutex_unlock(&ph->table->fork_locks[ph->f_right]);
 		}
+
 	}
 }
 

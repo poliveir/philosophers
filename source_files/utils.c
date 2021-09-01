@@ -2,9 +2,16 @@
 
 int	free_everything(t_phil *ph)
 {
+	int	i;
+
 	free(ph->table->forks);
 	ph->table->forks = NULL;
 	pthread_mutex_destroy(&ph->table->mutex);
+	i = 0;
+	while (i < ph->table->n_phil)
+		pthread_mutex_destroy(&ph->table->fork_locks[i++]);
+	free(ph->table->fork_locks);
+	ph->table->fork_locks = NULL;
 	free(ph->table->th);
 	ph->table->th = NULL;
 	free(ph);
