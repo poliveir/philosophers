@@ -20,7 +20,9 @@ typedef struct s_table
 	pthread_mutex_t	*fork_locks;
 	int				death_is_present;
 	int				all_saciated;
-	pthread_mutex_t	mutex;
+	pthread_mutex_t	saciation;
+	pthread_mutex_t	death;
+	pthread_mutex_t print;
 	pthread_t		*th;
 }				t_table;
 
@@ -36,7 +38,6 @@ typedef struct s_phil
 	int		eating;
 	int		sleeping;
 	int		thinking;
-	int		test;
 	t_table	*table;
 }				t_phil;
 

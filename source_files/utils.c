@@ -6,7 +6,9 @@ int	free_everything(t_phil *ph)
 
 	free(ph->table->forks);
 	ph->table->forks = NULL;
-	pthread_mutex_destroy(&ph->table->mutex);
+	pthread_mutex_destroy(&ph->table->saciation);
+	pthread_mutex_destroy(&ph->table->death);
+	pthread_mutex_destroy(&ph->table->print);
 	i = 0;
 	while (i < ph->table->n_phil)
 		pthread_mutex_destroy(&ph->table->fork_locks[i++]);

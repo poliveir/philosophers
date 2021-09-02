@@ -18,7 +18,6 @@ static t_phil	*set_philosophers(t_table *table)
 		ph[i].eating = 0;
 		ph[i].sleeping = 0;
 		ph[i].thinking = 0;
-		ph[i].test = 0;
 		if (i == table->n_phil - 1)
 			ph[i].f_right = 0;
 		else
@@ -42,7 +41,9 @@ static pthread_t	*set_the_table(t_table *table, int argc, char **argv)
 	table->all_saciated = 0;
 	table->forks = malloc(sizeof(int) * table->n_phil);
 	table->fork_locks = malloc(sizeof(pthread_mutex_t) * table->n_phil);
-	pthread_mutex_init(&table->mutex, NULL);
+	pthread_mutex_init(&table->death, NULL);
+	pthread_mutex_init(&table->saciation, NULL);
+	pthread_mutex_init(&table->print, NULL);
 	i = 0;
 	while (i < table->n_phil)
 	{

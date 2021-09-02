@@ -4,17 +4,23 @@ void	pick_up_fork2(t_phil *ph, char side)
 {
 	if (side == 'r')
 	{
-		printf("%ld %d has taken a fork\n", \
-		check_time() - ph->table->start_time, ph->pos + 1);
 		ph->table->forks[ph->f_right] = 0;
 		ph->n_forks++;
+		pthread_mutex_lock(&ph->table->print);
+		if (!ph->table->death_is_present)
+			printf("%ld %d has taken a fork\n", \
+		check_time() - ph->table->start_time, ph->pos + 1);
+		pthread_mutex_unlock(&ph->table->print);
 	}
 	else if (side == 'l')
 	{
-		printf("%ld %d has taken a fork\n", \
-		check_time() - ph->table->start_time, ph->pos + 1);
 		ph->table->forks[ph->f_left] = 0;
 		ph->n_forks++;
+		pthread_mutex_lock(&ph->table->print);
+		if (!ph->table->death_is_present)
+			printf("%ld %d has taken a fork\n", \
+		check_time() - ph->table->start_time, ph->pos + 1);
+		pthread_mutex_unlock(&ph->table->print);
 	}
 }
 
@@ -53,19 +59,21 @@ void	start_eating(t_phil *ph)
 {
 	if (!check_deaths(ph) && !check_saciation(ph))
 	{
-		printf("%ld %d is eating\n", \
-		check_time() - ph->table->start_time, ph->pos + 1);
-		ph->test++;
 		ph->last_meal_time = check_time();
 		ph->eating = 1;
+		pthread_mutex_lock(&ph->table->print);
+		if (!ph->table->death_is_present)
+			printf("%ld %d is eating\n", \
+			check_time() - ph->table->start_time, ph->pos + 1);
+		pthread_mutex_unlock(&ph->table->print);
 		if (ph->meals_left != -1)
 			ph->meals_left--;
 		if (ph->meals_left == 0)
 		{
-			pthread_mutex_lock(&ph->table->mutex);
-			ph->table->all_saciated++;
 			ph->meals_left = -1;
-			pthread_mutex_unlock(&ph->table->mutex);
+			pthread_mutex_lock(&ph->table->saciation);
+			ph->table->all_saciated++;
+			pthread_mutex_unlock(&ph->table->saciation);
 		}
 	}
 }
@@ -90,8 +98,11 @@ void	start_sleeping(t_phil *ph)
 	{
 		ph->start_sleeping_time = check_time();
 		ph->sleeping = 1;
-		printf("%ld %d is sleeping\n", \
-		ph->start_sleeping_time - ph->table->start_time, ph->pos + 1);
+		pthread_mutex_lock(&ph->table->print);
+		if (!ph->table->death_is_present)
+			printf("%ld %d is sleeping\n", \
+			check_time() - ph->table->start_time, ph->pos + 1);
+		pthread_mutex_unlock(&ph->table->print);
 	}
 }
 
@@ -101,22 +112,25 @@ void	stop_sleeping(t_phil *ph)
 	{
 		if (check_time() - ph->start_sleeping_time >= ph->table->time_to_sleep)
 		{
-			printf("%ld %d is thinking\n", \
-			check_time() - ph->table->start_time, ph->pos + 1);
 			ph->sleeping = 0;
+			pthread_mutex_lock(&ph->table->print);
+			if (!ph->table->death_is_present)
+				printf("%ld %d is thinking\n", \
+			check_time() - ph->table->start_time, ph->pos + 1);
+			pthread_mutex_unlock(&ph->table->print);
 		}
 	}
 }
 
 int	check_saciation(t_phil *ph)
 {
-	pthread_mutex_lock(&ph->table->mutex);
+	pthread_mutex_lock(&ph->table->saciation);
 	if (ph->table->all_saciated == ph->table->n_phil)
 	{
-		pthread_mutex_unlock(&ph->table->mutex);
+		pthread_mutex_unlock(&ph->table->saciation);
 		return (1);
 	}
-	pthread_mutex_unlock(&ph->table->mutex);
+	pthread_mutex_unlock(&ph->table->saciation);
 	return (0);
 }
 
@@ -125,10 +139,10 @@ int	check_deaths(t_phil *ph)
 	long	current_time;
 	long	fasting_time;
 
-	pthread_mutex_lock(&ph->table->mutex);
+	pthread_mutex_lock(&ph->table->death);
 	if (ph->table->death_is_present)
 	{
-		pthread_mutex_unlock(&ph->table->mutex);
+		pthread_mutex_unlock(&ph->table->death);
 		return (1);
 	}
 	fasting_time = check_time() - ph->last_meal_time;
@@ -136,11 +150,15 @@ int	check_deaths(t_phil *ph)
 	if (fasting_time >= ph->table->time_to_die)
 	{
 		if (!ph->table->death_is_present)
-			printf("%li %d died\n", current_time, ph->pos + 1);
-		ph->table->death_is_present = 1;
-		pthread_mutex_unlock(&ph->table->mutex);
+		{
+			ph->table->death_is_present = 1;
+			pthread_mutex_lock(&ph->table->print);
+			printf("%li %d died\n", check_time() - ph->table->start_time, ph->pos + 1);
+			pthread_mutex_unlock(&ph->table->print);
+		}
+		pthread_mutex_unlock(&ph->table->death);
 		return (1);
 	}
-	pthread_mutex_unlock(&ph->table->mutex);
+	pthread_mutex_unlock(&ph->table->death);
 	return (0);
 }
