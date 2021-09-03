@@ -38,6 +38,7 @@ typedef struct s_phil
 	int		eating;
 	int		sleeping;
 	int		thinking;
+	//int		meals;
 	t_table	*table;
 }				t_phil;
 

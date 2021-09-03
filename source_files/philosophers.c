@@ -18,6 +18,7 @@ static t_phil	*set_philosophers(t_table *table)
 		ph[i].eating = 0;
 		ph[i].sleeping = 0;
 		ph[i].thinking = 0;
+		//ph[i].meals = 0;
 		if (i == table->n_phil - 1)
 			ph[i].f_right = 0;
 		else
@@ -78,6 +79,7 @@ static void	*routine(void *arg)
 		if (ph->sleeping)
 			stop_sleeping(ph);
 	}
+	//printf("PH[%d] has eaten %d times\n", ph->pos + 1, ph->meals);
 	return (0);
 }
 

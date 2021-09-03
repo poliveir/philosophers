@@ -6,7 +6,8 @@ SRCS_DIR		= ./source_files
 
 HDRS_DIR		= ./header_files
 
-SRCS			= source_files/philosophers.c source_files/error_handling.c source_files/utils.c source_files/actions.c
+SRCS			= source_files/philosophers.c source_files/error_handling.c source_files/utils.c source_files/actions.c \
+				source_files/actions2.c
 
 OBJS			= ${SRCS:.c=.o}
 
